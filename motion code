@@ -1,0 +1,30 @@
+This function defines the equations of motion of the vehicle.
+function [motorRPM, positionDot, velocityDot] = car(throttle, brake, 
+position, velocity) %#ok<INUSL>
+% This function defines the equations of motion of the vehicle. The 
+vehicle
+% is powered by an electric motor with a gearbox. The gear ratio 
+from the motor to the wheels is 6:1.
+% Radius of wheel
+wheelRadius = 0.3;
+% Define the mass properties 
+wheelMass = 10;
+chassisMass = 1300;
+wheelMomentOfInertia = 0.5*wheelMass*wheelRadius*wheelRadius;
+mass = (4*wheelMass) + chassisMass + (4 * 
+wheelMomentOfInertia/(wheelRadius^2));
+% Compute the motor RPM fromt he wheel speed assuming that the 
+wheels don't
+% slip.
+motorRPM = (velocity/wheelRadius)*(60/(2*pi))*6;
+% Compute the upper bound of the motor torque for the current RPM.
+motorTorqueUpperBound = 300*exp(-(0.0001*motorRPM));
+% Compute the forces acting on the vehicle.
+dragForce = 0.5*1.225*(velocity^2)*2;
+totalFrictionForce = 0.4*velocity;
+motorForce = throttle*motorTorqueUpperBound*6/wheelRadius;
+brakeForce = brake*sign(velocity)*1600/wheelRadius;
+force = motorForce - dragForce - totalFrictionForce - brakeForce;
+% Equations of motion
+positionDot = velocity;
+velocityDot = force/mass;
